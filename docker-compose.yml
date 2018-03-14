@@ -16,3 +16,13 @@ services:
       - "2181:2181"
     environment:
       - KAFKA_ADVERTISED_HOST_NAME=zookeeper
+  mongo:
+    image: mongo:latest
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    volumes:
+      - ./data/db:/data/db
+    ports:
+      - "27017:27017"
+    command: /opt/mongodb/bin/mongod --smallfiles --logpath=/dev/null
