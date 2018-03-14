@@ -53,6 +53,17 @@
       <version>${kafka.version}</version>
     </dependency>
 
+    <!-- spring cloud avro schema parsing -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-stream-schema</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avro</groupId>
+      <artifactId>avro</artifactId>
+      <version>1.8.2</version>
+    </dependency>
+
     <!-- mongodb streaming client -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

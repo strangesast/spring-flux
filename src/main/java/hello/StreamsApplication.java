@@ -17,10 +17,14 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.cloud.stream.binder.kafka.streams.QueryableStoreRegistry;
 import org.springframework.cloud.stream.binder.kafka.streams.annotations.KafkaStreamsProcessor;
+import org.springframework.cloud.stream.schema.avro.AvroSchemaMessageConverter;
+import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.support.serializer.JsonSerde;
+import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.util.MimeType;
 import org.springframework.util.StringUtils;
 
 import java.util.Set;
@@ -42,39 +46,32 @@ public class StreamsApplication {
 
   ReadOnlyKeyValueStore<Object, Object> keyValueStore;
 
+  @Bean
+  public MessageConverter avroMessageConverter() {
+    return new AvroSchemaMessageConverter(MimeType.valueOf("avro/bytes"));
+  }
+
   /**
    * Whew.
    */
   @StreamListener("input")
   @SendTo("output")
   public KStream<String, Long> process(KStream<Object, Product> input) {
-    Serialized<String, Product> serialized = Serialized.with(
-        Serdes.String(),
-        new JsonSerde<>(Product.class));
-
-    /*
-    Materialized<Integer, Long, KeyValueStore<Bytes, byte[]>> materialized = Materialized
-        .<Integer, Long, KeyValueStore<Bytes, byte[]>>as(STORE_NAME)
-        .withKeySerde(Serdes.Integer())
-        .withValueSerde(Serdes.Long());
-    */
-    Materialized<String, Long, KeyValueStore<Bytes, byte[]>> materialized = Materialized
-        .<String, Long, KeyValueStore<Bytes, byte[]>>as(STORE_NAME)
-        .withKeySerde(Serdes.String())
-        .withValueSerde(Serdes.Long());
     return input
         .filter((key, product) -> productIds().contains(product.getId()))
         .map((key, value) -> new KeyValue<>(String.valueOf(value.id), value))
         .groupByKey(Serialized.with(Serdes.String(), new JsonSerde<>(Product.class)))
-        .count(materialized)
+        .count(Materialized.<String, Long, KeyValueStore<Bytes, byte[]>>as(STORE_NAME)
+          .withKeySerde(Serdes.String())
+          .withValueSerde(Serdes.Long()))
         .toStream();
   }
 
-  private Set<Integer> productIds() {
+  private Set<String> productIds() {
     return StringUtils.commaDelimitedListToSet(productTrackerProperties.getProductIds())
-        .stream().map(Integer::parseInt).collect(Collectors.toSet());
+        .stream()
+        .collect(Collectors.toSet());
   }
-
 
   /**
    * Whew.
@@ -88,8 +85,8 @@ public class StreamsApplication {
       );
     }
 
-    for (Integer id : productIds()) {
-      System.out.printf("Product ID: %d Count: %d\n", id, keyValueStore.get(String.valueOf(id)));
+    for (String id : productIds()) {
+      System.out.printf("Product ID: %s Count: %d\n", id, keyValueStore.get(id));
     }
   }
 }
