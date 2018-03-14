@@ -1,6 +1,7 @@
 package hello;
 
 import hello.MainWebSocketHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.HandlerMapping;
@@ -15,10 +16,16 @@ import java.util.Map;
 @Configuration
 public class WebSocketRouter {
 
+  @Autowired
+  private WebSocketHandler webSocketHandler;
+
+  /**
+   * Whew.
+   */
   @Bean
   public HandlerMapping handlerMapping() {
     Map<String, WebSocketHandler> map = new HashMap<>();
-    map.put("/socket", new MainWebSocketHandler());
+    map.put("/socket", webSocketHandler);
     SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
     mapping.setUrlMap(map);
     mapping.setOrder(-1);

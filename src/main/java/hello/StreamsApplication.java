@@ -1,6 +1,6 @@
 package hello;
 
-import hello.ProductTrackerProperties;
+//import hello.ProductTrackerProperties;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
@@ -27,12 +27,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.MimeType;
 import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @EnableBinding(KafkaStreamsProcessor.class)
 @EnableAutoConfiguration
-@EnableConfigurationProperties(ProductTrackerProperties.class)
+//@EnableConfigurationProperties(ProductTrackerProperties.class)
 @EnableScheduling
 public class StreamsApplication {
 
@@ -41,8 +43,8 @@ public class StreamsApplication {
   @Autowired
   private QueryableStoreRegistry queryableStoreRegistry;
 
-  @Autowired
-  ProductTrackerProperties productTrackerProperties;
+  //@Autowired
+  //ProductTrackerProperties productTrackerProperties;
 
   ReadOnlyKeyValueStore<Object, Object> keyValueStore;
 
@@ -68,9 +70,7 @@ public class StreamsApplication {
   }
 
   private Set<String> productIds() {
-    return StringUtils.commaDelimitedListToSet(productTrackerProperties.getProductIds())
-        .stream()
-        .collect(Collectors.toSet());
+    return new HashSet<>(Arrays.asList("123", "124", "125"));
   }
 
   /**
