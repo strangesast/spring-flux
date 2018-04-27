@@ -48,7 +48,7 @@ public class MainWebSocketHandler implements WebSocketHandler {
 
   public class Event {
     private String eventId;
-    private String eventDt;
+    private String eventDt; 
 
     public Event(String eventId, String eventDt) {
       this.eventId = eventId;
@@ -56,4 +56,36 @@ public class MainWebSocketHandler implements WebSocketHandler {
     }
   }
 
+  /*
+  @Override
+  public Mono<Void> handle(WebSocketSession session) {
+    ObjectMapper json = new ObjectMapper();
+
+    Flux<WebSocketMessage> publisher = Flux
+        .generate(sink ->
+          sink.next(new Event(randomUUID().toString(), now().toString())))
+        .flatMap(event -> {
+          try {
+            return Flux.just(json.writeValueAsString(event));
+          } catch (JsonProcessingException ex) {
+            System.out.println("failed to convert to json");
+            return Flux.empty();
+          }
+        })
+        .map(text -> session.textMessage(text))
+        .delayElements(Duration.ofSeconds(1));
+
+    return session.send(publisher);
+  }
+
+  public class Event {
+    private String eventId;
+    private String eventDt;
+
+    public Event(String eventId, String eventDt) {
+      this.eventId = eventId;
+      this.eventDt = eventDt;
+    }
+  }
+  */
 }

@@ -27,8 +27,8 @@ public class WebSocketRouter {
     Map<String, WebSocketHandler> map = new HashMap<>();
     map.put("/socket", webSocketHandler);
     SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
+    mapping.setOrder(10);
     mapping.setUrlMap(map);
-    mapping.setOrder(-1);
     return mapping;
   }
 
